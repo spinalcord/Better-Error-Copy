@@ -1,0 +1,137 @@
+{
+  "name": "bettererrorcopy",
+  "displayName": "BetterErrorCopy",
+  "description": "A VS Code extension that formats the problems list in a more readable Markdown format with code snippets, making it easier to share and document issues.",
+  "version": "0.0.1",
+  "publisher": "7dev",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "bettererrorcopy.copyProblemsAsMarkdown",
+        "title": "Copy Problems as Markdown"
+      },
+      {
+        "command": "bettererrorcopy.copyProblemsCompact",
+        "title": "Copy Problems (Compact Format)"
+      },
+      {
+        "command": "bettererrorcopy.copyErrorsOnly",
+        "title": "Copy Errors Only"
+      },
+      {
+        "command": "bettererrorcopy.copyWithFilter",
+        "title": "Copy Problems with Custom Filter..."
+      },
+      {
+        "command": "bettererrorcopy.exportAsHtml",
+        "title": "Copy Problems as HTML"
+      },
+      {
+        "command": "bettererrorcopy.saveToFile",
+        "title": "Save Problems to File..."
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "bettererrorcopy.copyProblemsAsMarkdown",
+          "group": "9_cutcopypaste"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "bettererrorcopy.copyProblemsAsMarkdown",
+          "when": "view == workbench.panel.markers.view",
+          "group": "navigation"
+        },
+        {
+          "command": "bettererrorcopy.copyProblemsCompact",
+          "when": "view == workbench.panel.markers.view",
+          "group": "navigation"
+        },
+        {
+          "command": "bettererrorcopy.copyErrorsOnly",
+          "when": "view == workbench.panel.markers.view",
+          "group": "navigation"
+        },
+        {
+          "command": "bettererrorcopy.copyWithFilter",
+          "when": "view == workbench.panel.markers.view",
+          "group": "navigation"
+        },
+        {
+          "command": "bettererrorcopy.exportAsHtml",
+          "when": "view == workbench.panel.markers.view",
+          "group": "navigation"
+        },
+        {
+          "command": "bettererrorcopy.saveToFile",
+          "when": "view == workbench.panel.markers.view",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Better Error Copy",
+      "properties": {
+        "bettererrorcopy.contextLines": {
+          "type": "number",
+          "default": 4,
+          "description": "Number of context lines before and after the problem"
+        },
+        "bettererrorcopy.groupByFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Group problems by file (if false, group by severity)"
+        },
+        "bettererrorcopy.addSummary": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add a summary section with problem counts"
+        },
+        "bettererrorcopy.useEmoji": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use emoji icons for different severity levels"
+        },
+        "bettererrorcopy.addTimestamp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add a timestamp to the report"
+        },
+        "bettererrorcopy.addSystemInfo": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add system information to the report (VS Code version, OS, etc.)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "eslint": "^8.18.0",
+    "typescript": "^4.7.4",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.1.5"
+  }
+}
