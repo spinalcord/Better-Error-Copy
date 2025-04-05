@@ -53,51 +53,7 @@ This is useful for focusing on specific types of problems in large codebases.
 
 ## Example Output
 
-### Standard Format
-
-```markdown
-# VS Code Problems Report
-
-## Summary
-- 🔴 **Errors:** 2
-- 🟠 **Warnings:** 3
-- 🔵 **Information:** 0
-- ⚪ **Hints:** 1
-- **Total Files:** 2
-- **Total Problems:** 6
-- **Most Problems:** src/main.rs (4 problems, 67% of total)
-
-Generated on: 4/5/2025 at 10:30:45 AM
-
-## File: src/main.rs
-
-#### 🔴 Error 
-**src/main.rs** (Line 4, Col 1) in `fn main()`: 'println' macro is undefined
-```rs
- 1: fn main() {
- 2:     // This should print to the console
- 3:     // But there's an error
->4:     println!("asdfsdf")
- 5:     
- 6:     // More code here
- 7:     let x = 5;
- 8: }
-```
-
-#### 🟠 Warning 
-**src/main.rs** (Line 15, Col 1): Unused macro invocation
-```rs
- 11: fn other_function() {
- 12:     // These function calls are not used
- 13:     foobar!("asdfsdf");
- 14:     foobar!("asdfsdf");
->15:     foobar!("asdfsdf")
- 16: }
- 17:
- 18: fn used_function() {
- 19:     // This is actually used
-```
-```
+![](images/exaple.png)
 
 ### HTML Export
 
