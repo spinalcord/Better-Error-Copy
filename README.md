@@ -2,6 +2,10 @@
 
 A VS Code extension that formats the problems list in a more readable Markdown format with code snippets when you copy it, making it easier to share and document issues.
 
+## How to copy Errors in a Nutshell
+Ctrl + Shift + P
+![](https://github.com/spinalcord/Better-Error-Copy/blob/master/images/exampl2.png?raw=true)
+
 ## Features
 
 - Converts VS Code problems (errors, warnings, etc.) into a clean Markdown format
