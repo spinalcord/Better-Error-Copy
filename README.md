@@ -1,6 +1,6 @@
-# BetterErrorCopy for VS Code
+# Better Error Copy for VS Code
 
-A VS Code extension that formats the problems list in a more readable Markdown format with code snippets, making it easier to share and document issues.
+A VS Code extension that formats the problems list in a more readable Markdown format with code snippets when you copy it, making it easier to share and document issues.
 
 ## Features
 
@@ -12,7 +12,7 @@ A VS Code extension that formats the problems list in a more readable Markdown f
 - Summary statistics showing error/warning counts
 - Status bar indicator showing real-time error and warning counts
 - Advanced filtering options (by severity, file pattern, or message content)
-- Export as HTML with syntax highlighting
+- Export as HTML
 - Save problems directly to Markdown or HTML files
 - Shows function/class context for each problem when available
 - Identification of most problematic files in the codebase
@@ -51,9 +51,9 @@ The "Copy Problems with Custom Filter..." command allows you to:
 
 This is useful for focusing on specific types of problems in large codebases.
 
-## Example Output
+## Example Output (In any Markdown-Render)
 
-![](images/exaple.png)
+![](https://github.com/spinalcord/Better-Error-Copy/blob/master/images/example.png?raw=true)
 
 ### HTML Export
 
@@ -69,35 +69,3 @@ This extension contributes the following settings:
 * `bettererrorcopy.useEmoji`: Use emoji icons for different severity levels (default: true)
 * `bettererrorcopy.addTimestamp`: Add a timestamp to the report (default: true)
 * `bettererrorcopy.addSystemInfo`: Add system information to the report (default: false)
-
-## Development
-
-### Prerequisites
-
-- Node.js and npm
-- Visual Studio Code
-
-### Setup
-
-1. Clone the repository
-2. Run `npm install` to install dependencies
-3. Open the project in VS Code
-4. Press F5 to launch the extension in a new VS Code window
-
-### Build
-
-```bash
-npm run compile
-```
-
-### Package
-
-To create a VSIX package:
-
-```bash
-npx @vscode/vsce package
-```
-
-## License
-
-MIT
