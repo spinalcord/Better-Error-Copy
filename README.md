@@ -61,7 +61,7 @@ This is useful for focusing on specific types of problems in large codebases.
 
 ### HTML Export
 
-The HTML export feature generates a styled HTML page with proper syntax highlighting for code snippets, making it perfect for sharing via email or other HTML-compatible channels.
+The HTML export feature generates a styled HTML for code snippets, making it perfect for sharing via email or other HTML-compatible channels.
 
 ## Extension Settings
 
