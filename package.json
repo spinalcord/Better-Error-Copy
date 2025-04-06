@@ -2,7 +2,7 @@
   "name": "bettererrorcopy",
   "displayName": "Markdown Error Copy",
   "description": "A VS Code extension that formats the problems list in a more readable Markdown format with code snippets, making it easier to share and document issues.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "7dev",
   "icon": "icon.jpg",
   "repository": "https://github.com/spinalcord/Better-Error-Copy",

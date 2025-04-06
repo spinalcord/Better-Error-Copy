@@ -297,6 +297,7 @@ function convertMarkdownToHtml(markdown: string): string {
 </html>`;
 }
 
+
 async function generateProblemsMarkdown(
   compact: boolean = false,
   severityFilter: vscode.DiagnosticSeverity[] | null = null,
@@ -395,8 +396,9 @@ async function generateProblemsMarkdown(
     // Group diagnostics by file
     const fileGroups = groupDiagnosticsByFile(diagnostics);
     
-    for (const [file, fileDiagnostics] of fileGroups) {
-      const relativePath = vscode.workspace.asRelativePath(file);
+    for (const [uri, fileDiagnostics] of fileGroups) {
+      // Hier URI direkt an asRelativePath übergeben
+      const relativePath = vscode.workspace.asRelativePath(uri);
       markdownParts.push(`## File: ${relativePath}\n`);
       
       for (const diagnostic of fileDiagnostics) {
@@ -429,15 +431,15 @@ function generateSummary(
   
   // Identify most problematic file
   const fileGroups = groupDiagnosticsByFile(diagnostics);
-  let mostProblematicFile = { file: '', count: 0 };
-  for (const [file, fileDiagnostics] of fileGroups) {
-    if (fileDiagnostics.length > mostProblematicFile.count) {
-      mostProblematicFile = { 
-        file: vscode.workspace.asRelativePath(file), 
-        count: fileDiagnostics.length 
-      };
-    }
+let mostProblematicFile = { file: '', count: 0 };
+for (const [uri, fileDiagnostics] of fileGroups) {
+  if (fileDiagnostics.length > mostProblematicFile.count) {
+    mostProblematicFile = { 
+      file: vscode.workspace.asRelativePath(uri), 
+      count: fileDiagnostics.length 
+    };
   }
+}
   
   // Create emoji markers if enabled
   const errorEmoji = useEmoji ? "🔴 " : "";
@@ -487,24 +489,25 @@ function getAllDiagnostics(): Array<{
 function groupDiagnosticsByFile(diagnostics: Array<{
   uri: vscode.Uri;
   diagnostic: vscode.Diagnostic;
-}>): Map<string, Array<{
+}>): Map<vscode.Uri, Array<{
   uri: vscode.Uri;
   diagnostic: vscode.Diagnostic;
 }>> {
-  const result = new Map<string, Array<{
+  const result = new Map<vscode.Uri, Array<{
     uri: vscode.Uri;
     diagnostic: vscode.Diagnostic;
   }>>();
 
   for (const item of diagnostics) {
-    const key = item.uri.toString();
+    // Verwenden Sie die URI direkt als Schlüssel, nicht als String
+    const key = item.uri;
     if (!result.has(key)) {
       result.set(key, []);
     }
     result.get(key)!.push(item);
   }
 
-  // Sort diagnostics within each file by severity, then line number
+  // Sortierung beibehalten...
   for (const [key, items] of result) {
     result.set(key, items.sort((a, b) => {
       if (a.diagnostic.severity !== b.diagnostic.severity) {

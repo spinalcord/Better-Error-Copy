@@ -9,8 +9,8 @@ Ctrl + Shift + P
 ## Features
 
 - Converts VS Code problems (errors, warnings, etc.) into a clean Markdown format
-- Includes code snippets with context lines around each problem with language-specific syntax highlighting
-- Highlights the exact line with the problem
+- Includes code snippets with context lines around each problem
+- Displays the exact line with the problem
 - Multiple output formats (detailed, compact)
 - Optional emoji indicators for different severity levels
 - Summary statistics showing error/warning counts
@@ -28,7 +28,7 @@ The extension provides multiple commands in the Problems panel:
 2. **Copy Problems (Compact Format)**: A more concise format without code snippets
 3. **Copy Errors Only**: Copy only errors (ignoring warnings, hints, and info)
 4. **Copy Problems with Custom Filter...**: Interactive dialog to set custom filters
-5. **Copy Problems as HTML**: Generate HTML output with syntax highlighting
+5. **Copy Problems as HTML**: Generate HTML output
 6. **Save Problems to File...**: Save the problems report to a Markdown or HTML file
 
 ## Status Bar Indicator
@@ -60,7 +60,7 @@ This is useful for focusing on specific types of problems in large codebases.
 
 ### HTML Export
 
-The HTML export feature generates a styled HTML for code snippets, making it perfect for sharing via email or other HTML-compatible channels.
+The HTML export feature generates a styled HTML, making it perfect for sharing via email or other HTML-compatible channels.
 
 ## Extension Settings
 
@@ -72,3 +72,6 @@ This extension contributes the following settings:
 * `bettererrorcopy.useEmoji`: Use emoji icons for different severity levels (default: true)
 * `bettererrorcopy.addTimestamp`: Add a timestamp to the report (default: true)
 * `bettererrorcopy.addSystemInfo`: Add system information to the report (default: false)
+
+# 0.0.2
+- Relativ paths instead absolute
