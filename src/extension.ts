@@ -84,37 +84,54 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  // Save to file command
   let saveToFileCommand = vscode.commands.registerCommand(
     'bettererrorcopy.saveToFile',
     async () => {
       try {
+        
+        const format = await vscode.window.showQuickPick(
+          ['Markdown', 'HTML', 'Text'],
+          { placeHolder: 'Choose your file format' }
+        );
+        if (!format) return;
+  
+        let ext: string;
+        let content: string;
+        switch (format.toLowerCase()) {
+          case 'html':
+            ext = 'html';
+            const markdownHtml = await generateProblemsMarkdown();
+            content = convertMarkdownToHtml(markdownHtml);
+            break;
+          case 'text':
+            ext = 'txt';
+            content = await generateProblemsMarkdown();
+            break;
+          default: // Markdown
+            ext = 'md';
+            content = await generateProblemsMarkdown();
+            break;
+        }
+  
         const options = {
-          filters: {
-            'Markdown': ['md'],
-            'HTML': ['html'],
-            'Text': ['txt']
-          },
-          title: 'Save Problems Report'
+          filters: { [format]: [ext] },
+          title: 'Save Problems',
+          defaultUri: vscode.Uri.file(`report.${ext}`)
         };
-        
-        const uri = await vscode.window.showSaveDialog(options);
+        let uri = await vscode.window.showSaveDialog(options);
         if (!uri) return;
-        
-        const fileExt = path.extname(uri.fsPath).toLowerCase();
-        let content = '';
-        
-        if (fileExt === '.html') {
-          const markdown = await generateProblemsMarkdown();
-          content = convertMarkdownToHtml(markdown);
-        } else {
-          content = await generateProblemsMarkdown();
+  
+        let filePath = uri.fsPath;
+        if (!filePath.toLowerCase().endsWith(`.${ext}`)) {
+          filePath += `.${ext}`;
+          uri = vscode.Uri.file(filePath);
         }
         
+
         await fs.promises.writeFile(uri.fsPath, content);
-        vscode.window.showInformationMessage(`Problems saved to ${uri.fsPath}`);
+        vscode.window.showInformationMessage(`Problems saved: ${uri.fsPath}`);
       } catch (error) {
-        vscode.window.showErrorMessage(`Failed to save to file: ${error}`);
+        vscode.window.showErrorMessage(`Error saving: ${error}`);
       }
     }
   );

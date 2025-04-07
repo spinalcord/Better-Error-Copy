@@ -74,4 +74,5 @@ This extension contributes the following settings:
 * `bettererrorcopy.addSystemInfo`: Add system information to the report (default: false)
 
 # 0.0.2
-- Relativ paths instead absolute
+- Relativ paths instead absolute (in project folders)
+- fixed file save
