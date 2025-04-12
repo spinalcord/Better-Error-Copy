@@ -593,7 +593,7 @@ async function formatDiagnosticsBySeverity(
 //-------------------------------------------
 
 /**
- * Collects hover texts from a Rust file and returns them as a formatted markdown string
+ * Collects hover texts from a  file and returns them as a formatted markdown string
  * @param fileUri The URI of the file to analyze. If not provided, the active file is used.
  * @param specificLine Optional: If provided, only hover texts for this line will be collected
  * @returns Formatted markdown string with the collected hover texts
@@ -617,11 +617,7 @@ async function collectHoverTexts(fileUri?: vscode.Uri, specificLine?: number): P
       }
       document = editor.document;
   }
-  
-  // Check if it's a Rust file
-  if (document.languageId !== 'rust') {
-      return ""; // Return empty string if not a Rust file
-  }
+
 
   // Collect all tokens from the document
   const positions: vscode.Position[] = [];
@@ -660,7 +656,6 @@ async function collectHoverTexts(fileUri?: vscode.Uri, specificLine?: number): P
       // Original behavior: Analyze all lines in the document
       const text = document.getText();
       
-      // A simple regex to find Rust identifiers
       const identifierRegex = /[a-zA-Z_][a-zA-Z0-9_]*/g;
       let match;
       
@@ -746,22 +741,35 @@ async function collectHoverTexts(fileUri?: vscode.Uri, specificLine?: number): P
   let markdownOutput = "";
   
   if (uniqueHovers.size > 0) {
-      markdownOutput = "### Additional Information\n\n";
+      markdownOutput = "### Additional VSCode info\n";
       
       // Add each hover text with its context
       Array.from(uniqueHovers).forEach((hoverText, index) => {
           const contextInfo = hoverContexts.get(hoverText);
           if (contextInfo) {
-              markdownOutput += `#### ${contextInfo.context}\n\n`;
-              markdownOutput += `**Position:** ${contextInfo.position}\n\n`;
-              markdownOutput += `${hoverText}\n\n`;
-              markdownOutput += `---\n\n`;
+              // markdownOutput += `#### ${contextInfo.context}\n\n`;
+              markdownOutput += `\n`;
+              markdownOutput += `**Position:** ${contextInfo.position}\n`;
+              markdownOutput += `${hoverText}\n`;
+              //markdownOutput += ``;
           }
       });
   }
   
-  return markdownOutput;
+  return normalizeEmptyLines(removeTripleDashLines(markdownOutput));
 }
+
+function normalizeEmptyLines(text: string): string {
+  // Ersetzt zwei oder mehr aufeinanderfolgende Zeilenumbrüche durch einen einzelnen
+  return text.replace(/\n{3,}/g, '\n\n');
+}
+
+
+function removeTripleDashLines(text: string): string {
+  // Dies entfernt Zeilen, die nur aus "---" bestehen, gefolgt von einem Zeilenumbruch
+  return text.replace(/^---\n/gm, '');
+}
+
 //-------------------------------------------
 
 
@@ -804,13 +812,6 @@ async function formatDiagnostic(
   // Extract file extension for syntax highlighting
   const fileExtension = path.extname(uri.fsPath).substring(1);
   
-  //console.log("Versuche collectHoverTexts aufzurufen...");
-  //try {
-  //  await collectHoverTexts(uri,lineNumber - 1); 
-  //  console.log("collectHoverTexts wurde erfolgreich ausgeführt");
-  //} catch (error) {
-  //  console.error("Fehler beim Aufrufen von collectHoverTexts:", error);
-  //}
 
   const hoverInfo = await collectHoverTexts(uri, lineNumber - 1);
 
