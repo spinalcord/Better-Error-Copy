@@ -822,7 +822,6 @@ ${codeSnippet}
 \`\`\`
 
 ${hoverInfo}
-
 `;
 }
 

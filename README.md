@@ -73,6 +73,9 @@ This extension contributes the following settings:
 * `bettererrorcopy.addTimestamp`: Add a timestamp to the report (default: true)
 * `bettererrorcopy.addSystemInfo`: Add system information to the report (default: false)
 
+# 0.0.3
+- Experimental: Outputs also the Hover text, for more context.
+
 # 0.0.2
 - Relativ paths instead absolute (in project folders)
 - fixed file save
