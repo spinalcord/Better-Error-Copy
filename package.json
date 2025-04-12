@@ -113,7 +113,12 @@
           "type": "boolean",
           "default": false,
           "description": "Add system information to the report (VS Code version, OS, etc.)"
-        }
+        },
+        "bettererrorcopy.includeDefinitions": {
+        "type": "boolean",
+        "default": true,
+        "description": "Include definitions of symbols involved in errors when available"
+      }
       }
     }
   },

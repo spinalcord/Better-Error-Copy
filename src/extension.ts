@@ -590,6 +590,181 @@ async function formatDiagnosticsBySeverity(
   return result;
 }
 
+//-------------------------------------------
+
+/**
+ * Collects hover texts from a Rust file and returns them as a formatted markdown string
+ * @param fileUri The URI of the file to analyze. If not provided, the active file is used.
+ * @param specificLine Optional: If provided, only hover texts for this line will be collected
+ * @returns Formatted markdown string with the collected hover texts
+ */
+async function collectHoverTexts(fileUri?: vscode.Uri, specificLine?: number): Promise<string> {
+  let document: vscode.TextDocument;
+  
+  // Determine the document to analyze
+  if (fileUri) {
+      try {
+          // Try to open the document (without displaying it in the editor)
+          document = await vscode.workspace.openTextDocument(fileUri);
+      } catch (error) {
+          return ""; // Return empty string if file cannot be opened
+      }
+  } else {
+      // Use the active file in the editor
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+          return ""; // Return empty string if no file is open
+      }
+      document = editor.document;
+  }
+  
+  // Check if it's a Rust file
+  if (document.languageId !== 'rust') {
+      return ""; // Return empty string if not a Rust file
+  }
+
+  // Collect all tokens from the document
+  const positions: vscode.Position[] = [];
+  
+  // If a specific line was specified, only analyze that line
+  if (specificLine !== undefined) {
+      if (specificLine < 0 || specificLine >= document.lineCount) {
+          return ""; // Return empty string if line number is invalid
+      }
+      
+      const line = document.lineAt(specificLine);
+      const lineText = line.text;
+      
+      // Collect tokens for the entire line
+      // Collect identifiers
+      const identifierRegex = /[a-zA-Z_][a-zA-Z0-9_]*/g;
+      let match;
+      while ((match = identifierRegex.exec(lineText)) !== null) {
+          positions.push(new vscode.Position(specificLine, match.index));
+      }
+      
+      // Add special syntax tokens
+      positions.push(new vscode.Position(specificLine, 0)); // Line start
+      
+      // Add positions for tokens like brackets, operators, etc.
+      const specialChars = lineText.match(/[{}()\[\]<>,.;:+\-*/%&|^!=]/g);
+      if (specialChars) {
+          for (const char of specialChars) {
+              const charIndex = lineText.indexOf(char);
+              if (charIndex >= 0) {
+                  positions.push(new vscode.Position(specificLine, charIndex));
+              }
+          }
+      }
+  } else {
+      // Original behavior: Analyze all lines in the document
+      const text = document.getText();
+      
+      // A simple regex to find Rust identifiers
+      const identifierRegex = /[a-zA-Z_][a-zA-Z0-9_]*/g;
+      let match;
+      
+      while ((match = identifierRegex.exec(text)) !== null) {
+          const startPos = document.positionAt(match.index);
+          positions.push(startPos);
+      }
+      
+      // Add some special syntax positions (for operators, keywords, etc.)
+      for (let i = 0; i < document.lineCount; i++) {
+          const line = document.lineAt(i);
+          positions.push(new vscode.Position(i, 0)); // Line start
+          
+          // Add more positions for tokens like brackets, operators, etc.
+          const specialChars = line.text.match(/[{}()\[\]<>,.;:+\-*/%&|^!=]/g);
+          if (specialChars) {
+              for (const char of specialChars) {
+                  const charIndex = line.text.indexOf(char);
+                  if (charIndex >= 0) {
+                      positions.push(new vscode.Position(i, charIndex));
+                  }
+              }
+          }
+      }
+  }
+  
+  // A set to avoid duplicate hover texts
+  const uniqueHovers = new Set<string>();
+  // Map to store position context for each hover text
+  const hoverContexts = new Map<string, {context: string, position: string}>();
+  
+  // Maximum number of positions to check
+  const MAX_POSITIONS = specificLine !== undefined ? positions.length : 500;
+  const positionsToCheck = positions.slice(0, MAX_POSITIONS);
+  
+  // For each position, get the hover text
+  for (const position of positionsToCheck) {
+      try {
+          const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+              'vscode.executeHoverProvider',
+              document.uri,
+              position
+          );
+          
+          if (hovers && hovers.length > 0) {
+              for (const hover of hovers) {
+                  if (hover.contents.length > 0) {
+                      for (const content of hover.contents) {
+                          let hoverText = '';
+                          
+                          if (typeof content === 'string') {
+                              hoverText = content;
+                          } else if (content instanceof vscode.MarkdownString) {
+                              hoverText = content.value;
+                          }
+                          
+                          if (hoverText && !uniqueHovers.has(hoverText)) {
+                              uniqueHovers.add(hoverText);
+                              
+                              // Get the relevant position
+                              const range = hover.range || new vscode.Range(position, position);
+                              const contextText = document.getText(new vscode.Range(
+                                  new vscode.Position(range.start.line, Math.max(0, range.start.character - 10)),
+                                  new vscode.Position(range.end.line, range.end.character + 10)
+                              ));
+                              
+                              // Store context and position for this hover text
+                              hoverContexts.set(hoverText, {
+                                  context: contextText.trim(),
+                                  position: `Line ${position.line + 1}, Column ${position.character + 1}`
+                              });
+                          }
+                      }
+                  }
+              }
+          }
+      } catch (err) {
+          // Silently continue on error
+      }
+  }
+  
+  // Format the hover texts as markdown
+  let markdownOutput = "";
+  
+  if (uniqueHovers.size > 0) {
+      markdownOutput = "### Additional Information\n\n";
+      
+      // Add each hover text with its context
+      Array.from(uniqueHovers).forEach((hoverText, index) => {
+          const contextInfo = hoverContexts.get(hoverText);
+          if (contextInfo) {
+              markdownOutput += `#### ${contextInfo.context}\n\n`;
+              markdownOutput += `**Position:** ${contextInfo.position}\n\n`;
+              markdownOutput += `${hoverText}\n\n`;
+              markdownOutput += `---\n\n`;
+          }
+      });
+  }
+  
+  return markdownOutput;
+}
+//-------------------------------------------
+
+
 async function formatDiagnostic(
   { uri, diagnostic }: { uri: vscode.Uri; diagnostic: vscode.Diagnostic },
   contextLines: number,
@@ -629,11 +804,25 @@ async function formatDiagnostic(
   // Extract file extension for syntax highlighting
   const fileExtension = path.extname(uri.fsPath).substring(1);
   
+  //console.log("Versuche collectHoverTexts aufzurufen...");
+  //try {
+  //  await collectHoverTexts(uri,lineNumber - 1); 
+  //  console.log("collectHoverTexts wurde erfolgreich ausgeführt");
+  //} catch (error) {
+  //  console.error("Fehler beim Aufrufen von collectHoverTexts:", error);
+  //}
+
+  const hoverInfo = await collectHoverTexts(uri, lineNumber - 1);
+
   return `#### ${severityEmoji}${severityText} 
 **${relativePath}** (Line ${lineNumber}, Col ${colNumber})${codeLocation}: ${diagnostic.message.split('\n')[0]}
 \`\`\`${fileExtension}
 ${codeSnippet}
-\`\`\``;
+\`\`\`
+
+${hoverInfo}
+
+`;
 }
 
 // Function to get the scope of a code block (e.g. function, class, etc.)
