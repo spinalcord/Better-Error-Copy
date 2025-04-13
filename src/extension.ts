@@ -749,7 +749,7 @@ async function collectHoverTexts(fileUri?: vscode.Uri, specificLine?: number): P
           if (contextInfo) {
               // markdownOutput += `#### ${contextInfo.context}\n\n`;
               markdownOutput += `\n`;
-              markdownOutput += `**Position:** ${contextInfo.position}\n`;
+              markdownOutput += `**Position:** ${contextInfo.position}; **Slice:** \`...${contextInfo.context}...\`\n`;
               markdownOutput += `${hoverText}\n`;
               //markdownOutput += ``;
           }
@@ -820,9 +820,7 @@ async function formatDiagnostic(
 \`\`\`${fileExtension}
 ${codeSnippet}
 \`\`\`
-
-${hoverInfo}
-`;
+${hoverInfo}`;
 }
 
 // Function to get the scope of a code block (e.g. function, class, etc.)
